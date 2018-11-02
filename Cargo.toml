@@ -1,0 +1,6 @@
+[package]
+name = "galemu"
+version = "0.1.0"
+authors = ["Philipp Korber <p.korber@1aim.com>"]
+
+[dependencies]
