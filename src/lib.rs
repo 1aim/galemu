@@ -472,7 +472,14 @@ mod test {
         fn abort<'s>(me: Bound<'s, Self>);
     }
 
-    create_gal_wrapper_type!{ struct TransWrap(Transaction<'a>); }
+    create_gal_wrapper_type!{
+        /// Wraps `Transaction` erasing it's lifetime.
+        ///
+        /// This can only be used through a `Bound<'a, TransWrap>` instance,
+        /// as only then it is possible to access the wrapped type with the
+        /// correct lifetime
+        struct TransWrap(Transaction<'a>);
+    }
 
     impl GCon for Connection {
         type Transaction = TransWrap;
