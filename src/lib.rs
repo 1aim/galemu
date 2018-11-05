@@ -225,7 +225,8 @@ mod macros;
 /// it while we still have access to the original
 ///
 pub struct Bound<'a, T: BoundExt<'a>> {
-    limiter: PhantomData<&'a mut T>,
+    // bind `'a` in a invariant way
+    limiter: PhantomData<&'a mut &'a u8>,
     inner: T
 }
 
