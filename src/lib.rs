@@ -387,7 +387,7 @@ macro_rules! create_gal_wrapper_type {
             }
 
             #[allow(unused)]
-            $v fn get<'s, 'b: 's>(me: &'b Bound<'s, Self>) -> &'b $Inner<'s> {
+            $v fn get<'s: 'b, 'b>(me: &'b Bound<'s, Self>) -> &'b $Inner<'s> {
                 let ptr: *const $Inner<'static> = me.static_cell.get();
                 $crate::unsafe_block! {
                     "Self was transmuted from $Inner and `'s` is valid due to Bound's guarantees" => {
@@ -398,7 +398,7 @@ macro_rules! create_gal_wrapper_type {
             }
 
             #[allow(unused)]
-            $v fn get_mut<'s, 'b: 's>(me: &'b mut Bound<'s, Self>) -> &'b mut $Inner<'s> {
+            $v fn get_mut<'s: 'b, 'b>(me: &'b mut Bound<'s, Self>) -> &'b mut $Inner<'s> {
                 let ptr: *mut $Inner<'static> = me.static_cell.get();
                 $crate::unsafe_block! {
                     "Self was transmuted from $Inner and `'s` is valid due to Bound's guarantees" => {
@@ -515,6 +515,16 @@ mod test {
         GTran::abort(trans)
     }
 
+    fn use_bound_mut<'a>(t: &mut Bound<'a, TransWrap>) {
+        let x = TransWrap::get_mut(t);
+        x.conn.count += 4;
+    }
+
+    fn use_bound<'a>(t: &Bound<'a, TransWrap>) -> usize {
+        let x = TransWrap::get(t);
+        x.conn.count
+    }
+
     #[test]
     fn it_can_be_used() {
         let mut conn = Connection { count: 0 };
@@ -524,6 +534,12 @@ mod test {
         {
             create_abort_specific(&mut conn);
         }
-        assert_eq!(conn.count, 13)
+        {
+            let mut trans = conn.create_transaction();
+            let count = use_bound(&trans);
+            assert_eq!(count, 13);
+            use_bound_mut(&mut trans);
+        }
+        assert_eq!(conn.count, 17)
     }
 }
