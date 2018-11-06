@@ -1,6 +1,6 @@
 [package]
 name = "galemu"
-version = "0.2.1"
+version = "0.2.2"
 authors = ["Philipp Korber <p.korber@1aim.com>"]
 
 description = "Provides a workaround for generic associated types (GAT) limited to lifetimes (GAL)"
